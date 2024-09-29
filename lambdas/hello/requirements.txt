@@ -1,0 +1,5 @@
+bs4
+pydantic
+pydantic_core
+requests
+urllib3

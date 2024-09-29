@@ -24,3 +24,5 @@ testpaths = [
 
 [tool.pylint]
 disable = ["C0114", "C0115", "C0116"]
+max-line-length = 200
+init-hook = "import sys; sys.path.append('.')"

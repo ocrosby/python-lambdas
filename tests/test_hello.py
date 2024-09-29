@@ -5,7 +5,8 @@ from lambdas.hello.handler import lambda_handler
 test_cases = [
     {
         "name": "Basic Hello World",
-        "input": {},
+        "event": {},
+        "context": {},
         "expected": {
             "statusCode": 200,
             "body": "Hello, World!"
@@ -16,5 +17,12 @@ test_cases = [
 
 @pytest.mark.parametrize("test_case", test_cases, ids=[tc["name"] for tc in test_cases])
 def test_lambda_handler(test_case):
-    response = lambda_handler(test_case["input"], None)
+    # Arrange
+    event = test_case.get("event")
+    context = test_case.get("context")
+
+    # Act
+    response = lambda_handler(event, context)
+
+    # Assert
     assert response == test_case["expected"]
