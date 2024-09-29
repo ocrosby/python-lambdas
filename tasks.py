@@ -32,7 +32,7 @@ def lint(c):
     c.run("pylint lambdas/ tests/")
 
 
-@task(pre=[install])
+@task()
 def test(c):
     """Run the tests"""
     c.run("pytest")
