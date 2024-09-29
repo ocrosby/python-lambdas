@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "python-lambdas"
+version = "0.1.0"
+description = "A repository to house my generic python lambdas."
+readme = "README.md"
+requires-python = ">=3.6"
+dependencies = [
+    "invoke",
+    "pytest",
+    "pylint",
+    "boto3"
+]
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q"
+testpaths = [
+    "tests",
+]
+
+[tool.pylint]
+disable = ["C0114", "C0115", "C0116"]
