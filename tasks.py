@@ -64,6 +64,40 @@ def clean(c):
         print(f"Removing '{dist_dir}' ...")
         shutil.rmtree(dist_dir)
 
+
+"""
+Example usage of invoke to check the syntax of my project.
+
+After cloning the repo 
+
+> git clone blah
+
+Create a virtual environment
+
+> python -m venv .venv
+
+Source the virtual environment 
+
+> source .venv/bin/activate
+
+Upgrade Pip
+> pip install --upgrade pip
+
+Install dependencies
+
+> pip install .
+
+Install Invoke
+> pip install invoke
+
+At this point Invoke is availble int the bin directory of your virtual env
+> invoke lint
+
+or 
+
+> inv lint
+"""
+
 @task
 def lint(c):
     """Lint the project"""
@@ -87,6 +121,15 @@ def deploy(c):
     c.run("echo 'Deploying the project'")
     # Add more deploy steps here
 
+
+"""
+Using Invoke I can package my hello Lambda function as follows
+
+> inv pack hello
+
+This will result in the creation of a zip file in my root directory called hello.zip.
+This file will be deployable to AWS Lambda.
+"""
 
 @task
 def pack(c, name):
@@ -138,6 +181,14 @@ def pack(c, name):
         create_zip_from_directory(c, lambda_dir, zip_file)
 
 
+
+
+"""
+Packaging all lambda functions
+
+> inv pack-all 
+"""
+
 @task(pre=[clean])
 def pack_all(c):
     """Package all Lambda functions"""
@@ -152,6 +203,9 @@ def pack_all(c):
         lambda_dir = os.path.join(lambdas_dir, name)
         if os.path.isdir(lambda_dir):
             pack(c, name)
+
+
+# Todo: Create a deploy task that enumerates all zip files in the root directory and deploys them to AWS lambda.
 
 
 @task(default=True, pre=[build])
