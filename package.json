@@ -1,0 +1,32 @@
+{
+  "name": "python-lambdas",
+  "version": "1.0.0",
+  "description": "A project containing several experimental lambda functions.",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "make test",
+    "prepare": "husky install"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ocrosby/python-lambdas.git"
+  },
+  "keywords": [
+    "python",
+    "lambda"
+  ],
+  "author": "Omar Crosby",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ocrosby/python-lambdas/issues"
+  },
+  "homepage": "https://github.com/ocrosby/python-lambdas#readme",
+  "devDependencies": {
+    "@commitlint/cli": "^19.5.0",
+    "@commitlint/config-conventional": "^19.5.0",
+    "husky": "^8.0.0"
+  }
+}
