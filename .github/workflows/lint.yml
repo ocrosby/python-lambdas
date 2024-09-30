@@ -1,0 +1,38 @@
+name: Lint
+
+on:
+  push:
+    branches:
+      - 'main'
+      - 'feature/**'
+  pull_request:
+    branches:
+      - '**'
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    strategy:
+        fail-fast: false
+        matrix:
+            PYTHON_VERSION: ['3.9', '3.10', '3.11', '3.12']
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          make install
+        working-directory: .
+
+      - name: Lint code
+        run: |
+          make lint
+        working-directory: .
