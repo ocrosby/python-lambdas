@@ -64,13 +64,13 @@ def clean(c):
         print(f"Removing '{dist_dir}' ...")
         shutil.rmtree(dist_dir)
 
-@task(pre=[install])
+@task
 def lint(c):
     """Lint the project"""
     c.run("pylint lambdas/ tests/")
 
 
-@task()
+@task
 def test(c):
     """Run the tests"""
     c.run("pytest")

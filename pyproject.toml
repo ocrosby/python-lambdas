@@ -23,6 +23,8 @@ testpaths = [
 ]
 
 [tool.pylint]
-disable = ["C0114", "C0115", "C0116"]
+disable = [
+    "R1736",    # unnecessary-list-index-lookup
+]
 max-line-length = 200
 init-hook = "import sys; sys.path.append('.')"

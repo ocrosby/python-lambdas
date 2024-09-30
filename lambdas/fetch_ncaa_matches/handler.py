@@ -1,9 +1,13 @@
+"""
+Lambda function to fetch NCAA matches for a given date
+"""
+
 import json
 import datetime
 import time
 import http.client
 from urllib.parse import urlparse
-import boto3
+
 
 def generate_url(gender: str, division: str, target_date: datetime.date) -> str:
     """
@@ -126,6 +130,9 @@ def lambda_handler(event, context):
     :param context: Lambda context
     :return: List of matches
     """
+    print(f"Received event: {json.dumps(event)}")
+    print(f"Received context: {context}")
+
     try:
         gender = event['gender']
         division = event['division']
@@ -139,10 +146,30 @@ def lambda_handler(event, context):
             'statusCode': 200,
             'body': json.dumps(matches)
         }
-    except Exception as e:
+    except KeyError as e:
+        return {
+            'statusCode': 400,
+            'body': json.dumps(f"Missing key in event: {str(e)}")
+        }
+    except json.JSONDecodeError as e:
+        return {
+            'statusCode': 502,
+            'body': json.dumps(f"JSON decode error: {str(e)}")
+        }
+    except ValueError as e:
+        return {
+            'statusCode': 400,
+            'body': json.dumps(f"Value error: {str(e)}")
+        }
+    except http.client.HTTPException as e:
+        return {
+            'statusCode': 502,
+            'body': json.dumps(f"HTTP error: {str(e)}")
+        }
+    except TypeError as e:
         return {
             'statusCode': 500,
-            'body': json.dumps(f"An error occurred: {str(e)}")
+            'body': json.dumps(f"Type error: {str(e)}")
         }
 
 # Example event to use with this lambda

@@ -1,3 +1,7 @@
+"""
+A simple lambda function that returns a message.
+"""
+
 def lambda_handler(event: any, context: any):
     """Sample Lambda function that returns 'Hello, World!'"""
     print(f"Event: {event}")

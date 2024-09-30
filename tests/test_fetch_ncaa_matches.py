@@ -1,3 +1,7 @@
+"""
+This module contains the unit tests for the fetch_ncaa_matches lambda function.
+"""
+
 import json
 import pytest
 
@@ -39,6 +43,12 @@ test_cases = [
 
 @pytest.mark.parametrize("test_case", test_cases, ids=[tc["name"] for tc in test_cases])
 def test_lambda_handler(test_case):
+    """
+    Test the lambda_handler function
+
+    :param test_case:
+    :return:
+    """
     # Arrange
     event = test_case.get("event")
     context = test_case.get("context")
