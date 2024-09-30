@@ -22,9 +22,7 @@ jobs:
           node-version: '16'
 
       - name: Install commitlint
-        run: |
-          npm install
-        working-directory: .
+        run: npm install
 
       - name: Validate commit messages
         run: |
@@ -34,4 +32,3 @@ jobs:
             echo "No previous commit to compare against."
           fi
         shell: /usr/bin/bash -e {0}
-        working-directory: .

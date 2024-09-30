@@ -5,9 +5,22 @@ on:
     branches:
       - 'main'
       - 'feature/**'
+    paths:
+      - 'lambdas/**'
+      - 'tests/**'
+      - 'tasks.py'
+      - 'pyproject.toml'
+      - '.github/workflows/lint.yml'
   pull_request:
     branches:
       - '**'
+    paths:
+      - 'lambdas/**'
+      - 'tests/**'
+      - 'tasks.py'
+      - 'pyproject.toml'
+      - '.github/workflows/lint.yml'
+  workflow_dispatch:
 
 jobs:
   lint:
@@ -29,10 +42,9 @@ jobs:
 
       - name: Install dependencies
         run: |
-          make install
-        working-directory: .
+          pip install --upgrade pip
+          pip install invoke
+          pip install .
 
       - name: Lint code
-        run: |
-          make lint
-        working-directory: .
+        run: inv lint

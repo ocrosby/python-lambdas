@@ -3,10 +3,24 @@ name: Test
 on:
   push:
     branches:
-      - '**'
+      - 'main'
+      - 'feature/**'
+    paths:
+      - 'lambdas/**'
+      - 'tests/**'
+      - 'tasks.py'
+      - 'pyproject.toml'
+      - '.github/workflows/test.yml'
   pull_request:
     branches:
       - '**'
+    paths:
+      - 'lambdas/**'
+      - 'tests/**'
+      - 'tasks.py'
+      - 'pyproject.toml'
+      - '.github/workflows/test.yml'
+  workflow_dispatch:
 
 jobs:
   test:
@@ -28,10 +42,9 @@ jobs:
 
       - name: Install dependencies
         run: |
-          make install
-        working-directory: .
+          pip install --upgrade pip
+          pip install invoke
+          pip install .
 
       - name: Run tests
-        run: |
-          make test
-        working-directory: .
+        run: inv test
