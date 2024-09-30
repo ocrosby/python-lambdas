@@ -1,0 +1,138 @@
+{
+  "Comment": "A Step Function to invoke Lambda function for different parameters",
+  "StartAt": "GetDates",
+  "States": {
+    "GetDates": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:us-east-1:194227249447:function:FormatDates",
+      "ResultPath": "$.dates",
+      "Next": "ParallelExecution"
+    },
+    "ParallelExecution": {
+      "Type": "Parallel",
+      "Branches": [
+        {
+          "StartAt": "InvokeLambdaD1FemaleToday",
+          "States": {
+            "InvokeLambdaD1FemaleToday": {
+              "Type": "Task",
+              "Resource": "arn:aws:lambda:us-east-1:194227249447:function:FetchNCAAMatches",
+              "Parameters": {
+                "gender": "female",
+                "division": "d1",
+                "target_date": "$.dates.today"
+              },
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "InvokeLambdaD1FemaleYesterday",
+          "States": {
+            "InvokeLambdaD1FemaleYesterday": {
+              "Type": "Task",
+              "Resource": "arn:aws:lambda:us-east-1:194227249447:function:FetchNCAAMatches",
+              "Parameters": {
+                "gender": "female",
+                "division": "d1",
+                "target_date": "$.dates.yesterday"
+              },
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "InvokeLambdaD2FemaleToday",
+          "States": {
+            "InvokeLambdaD2FemaleToday": {
+              "Type": "Task",
+              "Resource": "arn:aws:lambda:us-east-1:194227249447:function:FetchNCAAMatches",
+              "Parameters": {
+                "gender": "female",
+                "division": "d2",
+                "target_date": "$.dates.today"
+              },
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "InvokeLambdaD2FemaleYesterday",
+          "States": {
+            "InvokeLambdaD2FemaleYesterday": {
+              "Type": "Task",
+              "Resource": "arn:aws:lambda:us-east-1:194227249447:function:FetchNCAAMatches",
+              "Parameters": {
+                "gender": "female",
+                "division": "d2",
+                "target_date": "$.dates.yesterday"
+              },
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "InvokeLambdaD1MaleToday",
+          "States": {
+            "InvokeLambdaD1MaleToday": {
+              "Type": "Task",
+              "Resource": "arn:aws:lambda:us-east-1:194227249447:function:FetchNCAAMatches",
+              "Parameters": {
+                "gender": "male",
+                "division": "d1",
+                "target_date": "$.dates.today"
+              },
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "InvokeLambdaD1MaleYesterday",
+          "States": {
+            "InvokeLambdaD1MaleYesterday": {
+              "Type": "Task",
+              "Resource": "arn:aws:lambda:us-east-1:194227249447:function:FetchNCAAMatches",
+              "Parameters": {
+                "gender": "male",
+                "division": "d1",
+                "target_date": "$.dates.yesterday"
+              },
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "InvokeLambdaD2MaleToday",
+          "States": {
+            "InvokeLambdaD2MaleToday": {
+              "Type": "Task",
+              "Resource": "arn:aws:lambda:us-east-1:194227249447:function:FetchNCAAMatches",
+              "Parameters": {
+                "gender": "male",
+                "division": "d2",
+                "target_date": "$.dates.today"
+              },
+              "End": true
+            }
+          }
+        },
+        {
+          "StartAt": "InvokeLambdaD2MaleYesterday",
+          "States": {
+            "InvokeLambdaD2MaleYesterday": {
+              "Type": "Task",
+              "Resource": "arn:aws:lambda:us-east-1:194227249447:function:FetchNCAAMatches",
+              "Parameters": {
+                "gender": "male",
+                "division": "d2",
+                "target_date": "$.dates.yesterday"
+              },
+              "End": true
+            }
+          }
+        }
+      ],
+      "End": true
+    }
+  }
+}

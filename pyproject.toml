@@ -11,8 +11,20 @@ requires-python = ">=3.6"
 dependencies = [
     "invoke",
     "pytest",
+    "pytest-cov",
+    "pytest-mock",
+    "pytest-bdd",
+    "requests",
+    "requests-mock",
+    "coverage",
+    "flake8",
+    "flake8-pyproject",
+    "coverage",
     "pylint",
-    "boto3"
+    "boto3",
+    "botocore",
+    "pydantic",
+    "python-semantic-release",
 ]
 
 [tool.pytest.ini_options]
@@ -22,9 +34,25 @@ testpaths = [
     "tests",
 ]
 
+[tool.flake8]
+max-line-length = 200
+ignore = [
+    "E203",    # whitespace before ':'
+    "W503",    # line break before binary operator
+]
+exclude = [
+    ".git",
+    "__pycache__",
+    ".pytest_cache",
+    ".tox",
+    ".nox",
+    "build",
+    "dist",
+]
+
 [tool.pylint]
 disable = [
     "R1736",    # unnecessary-list-index-lookup
 ]
 max-line-length = 200
-init-hook = "import sys; sys.path.append('.')"
+init-hook = "import sys; sys.path.append('.', './utils/', './lamdas/', './layers/', './tests/')"

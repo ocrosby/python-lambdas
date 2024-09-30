@@ -1,9 +1,13 @@
+"""
+Invoke build tasks for the project
+"""
+
 import os
 import shutil
 import glob
 import zipfile
 import tempfile
-import venv
+# import venv
 
 from invoke import task, Context
 
