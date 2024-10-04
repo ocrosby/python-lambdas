@@ -30,7 +30,11 @@ jobs:
     - name: Detect modified Lambda functions and layers
       id: detect_changes
       run: |
+        echo "Current branch:"
+        git branch --show-current
+        echo "Fetching latest changes from origin/main"
         git fetch origin main
+        echo "Comparing with origin/main"
         git diff HEAD~1 --name-only > changes.txt
         echo "===== BEGIN CHANGES ====="
         cat changes.txt
