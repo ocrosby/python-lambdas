@@ -31,8 +31,10 @@ jobs:
       id: detect_changes
       run: |
         git fetch origin main
-        modified_lambdas=$(git diff --name-only origin/main | grep '^lambdas/' | cut -d'/' -f2 | sort | uniq)
-        modified_layers=$(git diff --name-only origin/main | grep '^layers/' | cut -d'/' -f2 | sort | uniq)
+        git diff --name-only origin/main > changes.txt
+        cat changes.txt
+        modified_lambdas=$(grep '^lambdas/' changes.txt | cut -d'/' -f2 | sort | uniq)
+        modified_layers=$(grep '^layers/' changes.txt | cut -d'/' -f2 | sort | uniq)
         echo "modified_lambdas=$modified_lambdas" >> $GITHUB_ENV
         echo "modified_layers=$modified_layers" >> $GITHUB_ENV
         if [ -z "$modified_lambdas" ]; then
