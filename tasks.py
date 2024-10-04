@@ -1,11 +1,26 @@
 import os
 import shutil
 import tempfile
+import zipfile
+
 from invoke import task
+
+def create_zip_from_directory(c, source_dir, zip_file):
+    """Create a ZIP file from a directory."""
+    c.run(f"echo 'Creating ZIP file {zip_file} from directory {source_dir} ...'")
+    with zipfile.ZipFile(zip_file, 'w', zipfile.ZIP_DEFLATED) as archive:
+        for root, _, files in os.walk(source_dir):
+            for file in files:
+                file_path = str(os.path.join(root, file))
+                archive_name = os.path.relpath(file_path, source_dir)
+                c.run(f"echo 'Adding {file_path} as {archive_name} ...'")
+                archive.write(file_path, archive_name)
 
 @task
 def clean(c):
     """Clean the project"""
+    c.run("echo 'Cleaning the project'")
+
     egg_info = 'project.egg-info'
     if os.path.exists(egg_info):
         print(f"Removing '{egg_info}' ...")
@@ -20,6 +35,12 @@ def clean(c):
     if os.path.exists(dist_dir):
         print(f"Removing '{dist_dir}' ...")
         shutil.rmtree(dist_dir)
+
+@task(aliases=["i"])
+def install(c):
+    """Install the project"""
+    c.run("echo 'Installing the project'")
+    c.run("pip install .")
 
 @task
 def lint(c):
