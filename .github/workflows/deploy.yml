@@ -1,0 +1,96 @@
+name: Deploy Modified Lambda Functions and Layers
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Install dependencies
+      run: |
+        python -m venv .venv
+        source .venv/bin/activate
+        pip install --upgrade pip
+        pip install invoke
+        pip install -r requirements.txt
+
+    - name: Detect modified Lambda functions and layers
+      id: detect_changes
+      run: |
+        git fetch origin main
+        modified_lambdas=$(git diff --name-only origin/main | grep '^lambdas/' | cut -d'/' -f2 | sort | uniq)
+        modified_layers=$(git diff --name-only origin/main | grep '^layers/' | cut -d'/' -f2 | sort | uniq)
+        echo "modified_lambdas=$modified_lambdas" >> $GITHUB_ENV
+        echo "modified_layers=$modified_layers" >> $GITHUB_ENV
+
+    - name: Package modified Lambda functions
+      if: env.modified_lambdas != ''
+      run: |
+        source .venv/bin/activate
+        for lambda in ${{ env.modified_lambdas }}; do
+          echo "Packaging Lambda function: $lambda"
+          invoke pack $lambda
+        done
+
+    - name: Package modified Lambda layers
+      if: env.modified_layers != ''
+      run: |
+        source .venv/bin/activate
+        for layer in ${{ env.modified_layers }}; do
+          echo "Packaging Lambda layer: $layer"
+          invoke pack_layer $layer
+        done
+
+    - name: Upload Lambda functions to S3
+      if: env.modified_lambdas != ''
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      run: |
+        for lambda in ${{ env.modified_lambdas }}; do
+          echo "Uploading Lambda function to S3: $lambda"
+          aws s3 cp dist/$lambda.zip s3://<your-s3-bucket>/$lambda.zip
+        done
+
+    - name: Upload Lambda layers to S3
+      if: env.modified_layers != ''
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      run: |
+        for layer in ${{ env.modified_layers }}; do
+          echo "Uploading Lambda layer to S3: $layer"
+          aws s3 cp dist/$layer.zip s3://<your-s3-bucket>/$layer.zip
+        done
+
+    - name: Update Lambda functions
+      if: env.modified_lambdas != ''
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      run: |
+        for lambda in ${{ env.modified_lambdas }}; do
+          echo "Updating Lambda function: $lambda"
+          aws lambda update-function-code --function-name $lambda --s3-bucket "<your-s3-bucket>" --s3-key "$lambda.zip"
+        done
+
+    - name: Update Lambda layers
+      if: env.modified_layers != ''
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      run: |
+        for layer in ${{ env.modified_layers }}; do
+          echo "Updating Lambda layer: $layer"
+          aws lambda publish-layer-version --layer-name $layer --content S3Bucket=<your-s3-bucket>,S3Key=$layer.zip
+        done
