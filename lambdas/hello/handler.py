@@ -1,5 +1,5 @@
 """
-This module contains a simple Lambda function that returns 'Hello, World!'.
+This module contains a simple Lambda function that returns a generic message.
 """
 
 def lambda_handler(event: any, context: any):
