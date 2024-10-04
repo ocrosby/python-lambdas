@@ -30,6 +30,8 @@ jobs:
     - name: Detect modified Lambda functions and layers
       id: detect_changes
       run: |
+        echo "Checkout out the main branch"
+        git checkout main
         echo "Current branch:"
         git branch --show-current
         echo "Fetching latest changes from origin/main"
