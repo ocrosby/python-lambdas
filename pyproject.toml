@@ -25,6 +25,8 @@ dependencies = [
     "botocore",
     "pydantic",
     "python-semantic-release",
+    "setuptools",
+    "wheel",
 ]
 
 [tool.pytest.ini_options]
