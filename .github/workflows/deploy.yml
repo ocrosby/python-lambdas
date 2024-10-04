@@ -37,7 +37,7 @@ jobs:
         echo "Fetching latest changes from origin/main"
         git fetch origin main
         echo "Comparing with origin/main"
-        git diff HEAD~1 --name-only > changes.txt
+        git diff --name-only HEAD~1 HEAD > changes.txt
         echo "===== BEGIN CHANGES ====="
         cat changes.txt
         echo "===== END CHANGES ====="
