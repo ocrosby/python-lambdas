@@ -1,112 +1,30 @@
-"""
-Invoke build tasks for the project
-"""
-
 import os
 import shutil
-import glob
-import zipfile
 import tempfile
-# import venv
-
-from invoke import task, Context
-
-def remove_directory(c: Context, dir_path: str):
-    """
-    Remove a directory
-
-    :param c: The Invoke context
-    :param dir_path: The directory path to be removed
-    :return: None
-    """
-    if os.path.exists(dir_path):
-        c.run(f"echo 'Removing {dir_path} ...'")
-        shutil.rmtree(dir_path)
-
-def create_zip_from_directory(c, source_dir: str, zip_file: str):
-    """
-    Create a ZIP file from a directory
-
-    :param c: The Invoke context
-    :param source_dir: The source directory to be zipped
-    :param zip_file: The ZIP file to be created
-    :return: None
-    """
-    with zipfile.ZipFile(zip_file, 'w', zipfile.ZIP_DEFLATED) as zf:
-        for root, _, files in os.walk(source_dir):
-            for file in files:
-                file_path = os.path.join(root, file)
-                arcname = os.path.relpath(file_path, source_dir)
-                zf.write(file_path, arcname)
-    c.run(f"echo 'Packaged {source_dir} into {zip_file}'")
-
-@task
-def install(c):
-    """Install the dependencies"""
-    c.run("pip install --upgrade pip")
-    c.run("pip install .")
+from invoke import task
 
 @task
 def clean(c):
-    """Clean up the project"""
-    c.run("echo 'Cleaning up'")
-
-    # Remove any *.egg-info directories
-    for egg_info in glob.glob('*.egg-info'):
+    """Clean the project"""
+    egg_info = 'project.egg-info'
+    if os.path.exists(egg_info):
         print(f"Removing '{egg_info}' ...")
         shutil.rmtree(egg_info)
 
-    # Remove the build directory
     build_dir = 'build'
     if os.path.exists(build_dir):
         print(f"Removing '{build_dir}' ...")
         shutil.rmtree(build_dir)
 
-    # Remove the dist directory
     dist_dir = 'dist'
     if os.path.exists(dist_dir):
         print(f"Removing '{dist_dir}' ...")
         shutil.rmtree(dist_dir)
 
-
-"""
-Example usage of invoke to check the syntax of my project.
-
-After cloning the repo 
-
-> git clone blah
-
-Create a virtual environment
-
-> python -m venv .venv
-
-Source the virtual environment 
-
-> source .venv/bin/activate
-
-Upgrade Pip
-> pip install --upgrade pip
-
-Install dependencies
-
-> pip install .
-
-Install Invoke
-> pip install invoke
-
-At this point Invoke is availble int the bin directory of your virtual env
-> invoke lint
-
-or 
-
-> inv lint
-"""
-
 @task
 def lint(c):
     """Lint the project"""
     c.run("pylint lambdas/ tests/")
-
 
 @task
 def test(c):
@@ -117,23 +35,11 @@ def test(c):
 def build(c):
     """Build the project"""
     c.run("echo 'Building the project'")
-    # Add more build steps here
 
 @task
 def deploy(c):
     """Deploy the project"""
     c.run("echo 'Deploying the project'")
-    # Add more deploy steps here
-
-
-"""
-Using Invoke I can package my hello Lambda function as follows
-
-> inv pack hello
-
-This will result in the creation of a zip file in my root directory called hello.zip.
-This file will be deployable to AWS Lambda.
-"""
 
 @task
 def pack(c, name):
@@ -142,16 +48,13 @@ def pack(c, name):
     zip_file = f"dist/{name}.zip"
 
     if not os.path.exists(lambda_dir):
-        c.run(f"echo 'Lambda directory '{lambda_dir}' does not exist.'")
+        c.run(f"echo 'Lambda directory {lambda_dir} does not exist.'")
         return
 
     if not os.path.exists('dist'):
         os.makedirs('dist')
 
     with tempfile.TemporaryDirectory() as staging_dir:
-        # Create a virtual environment in the staging directory
-        # venv.create(staging_dir, with_pip=True)
-
         for root, dirs, files in os.walk(lambda_dir):
             for current_dir in dirs:
                 src_dir = os.path.join(root, current_dir)
@@ -162,7 +65,6 @@ def pack(c, name):
 
                 if not os.path.exists(dst_dir):
                     c.run(f"echo 'Creating directory {dst_dir} ...'")
-                    # shutil.copytree(src_dir, dst_dir)
                     os.makedirs(dst_dir)
 
             for current_file in files:
@@ -175,23 +77,39 @@ def pack(c, name):
                 c.run(f"echo 'Copying {src_file} to {dst_file} ...'")
                 shutil.copy2(src_file, dst_file)
 
-        # Install dependencies if requirements.txt exists
-        # c.run(f"echo 'Installing dependencies for {name} ...'")
-        # requirements_path = os.path.join(lambda_dir, 'requirements.txt')
-        # if os.path.exists(requirements_path):
-        #     c.run(f"pip install --target {staging_dir} --upgrade -r {requirements_path} -v")
+        requirements_path = os.path.join(lambda_dir, 'requirements.txt')
+        if os.path.exists(requirements_path):
+            c.run(f"pip install --target {staging_dir} --upgrade -r {requirements_path} -v")
 
-        # Create a ZIP file from the staging directory
-        create_zip_from_directory(c, lambda_dir, zip_file)
+        create_zip_from_directory(c, staging_dir, zip_file)
 
+@task
+def pack_layer(c, name):
+    """Package a Lambda layer by name"""
+    layer_dir = f"layers/{name}"
+    zip_file = f"dist/{name}.zip"
 
+    if not os.path.exists(layer_dir):
+        c.run(f"echo 'Layer directory {layer_dir} does not exist.'")
+        return
 
+    if not os.path.exists('dist'):
+        os.makedirs('dist')
 
-"""
-Packaging all lambda functions
+    with tempfile.TemporaryDirectory() as staging_dir:
+        for root, dirs, files in os.walk(layer_dir):
+            for current_file in files:
+                src_file = os.path.join(root, current_file)
+                dst_file = os.path.join(staging_dir, os.path.relpath(src_file, layer_dir))
 
-> inv pack-all 
-"""
+                c.run(f"echo 'Copying {src_file} to {dst_file} ...'")
+                shutil.copy2(src_file, dst_file)
+
+        requirements_path = os.path.join(layer_dir, 'requirements.txt')
+        if os.path.exists(requirements_path):
+            c.run(f"pip install --target {staging_dir} --upgrade -r {requirements_path} -v")
+
+        create_zip_from_directory(c, staging_dir, zip_file)
 
 @task(pre=[clean])
 def pack_all(c):
@@ -208,12 +126,22 @@ def pack_all(c):
         if os.path.isdir(lambda_dir):
             pack(c, name)
 
+@task(pre=[clean])
+def pack_all_layers(c):
+    """Package all Lambda layers"""
+    layers_dir = 'layers'
 
-# Todo: Create a deploy task that enumerates all zip files in the root directory and deploys them to AWS lambda.
+    if not os.path.exists(layers_dir):
+        print(f"Layers directory '{layers_dir}' does not exist.")
+        return
 
+    for name in os.listdir(layers_dir):
+        c.run(f"echo 'Packaging {name} ...'")
+        layer_dir = os.path.join(layers_dir, name)
+        if os.path.isdir(layer_dir):
+            pack_layer(c, name)
 
 @task(default=True, pre=[build])
 def default(c):
     """Default task"""
     c.run("echo 'Running the default task'")
-    # Add more default steps here

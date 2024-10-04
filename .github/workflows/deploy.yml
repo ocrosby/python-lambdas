@@ -1,4 +1,4 @@
-name: Deploy Modified Lambda Functions and Layers
+name: Deploy
 
 on:
   workflow_dispatch:
