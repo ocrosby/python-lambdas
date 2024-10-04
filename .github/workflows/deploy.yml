@@ -32,7 +32,9 @@ jobs:
       run: |
         git fetch origin main
         git diff --name-only origin/main > changes.txt
+        echo "===== BEGIN CHANGES ====="
         cat changes.txt
+        echo "===== END CHANGES ====="
         modified_lambdas=$(grep '^lambdas/' changes.txt | cut -d'/' -f2 | sort | uniq)
         modified_layers=$(grep '^layers/' changes.txt | cut -d'/' -f2 | sort | uniq)
         echo "modified_lambdas=$modified_lambdas" >> $GITHUB_ENV
